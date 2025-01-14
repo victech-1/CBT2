@@ -91,8 +91,5 @@ elif st.session_state["current_page"] == "sign up":
     st.caption('Already have an account?')
     if st.button("Login"):
         switch_page("Login")
-
-elif st.session_state["current_page"] == "student":
-    Student(username)
 else:
     st.session_state.current_page = 'Login'
