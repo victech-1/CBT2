@@ -5,14 +5,9 @@ import re
 from pages.admin import Admin
 from pages.student import Student
 
-st.image(os.path.join(os.getcwd(), 'images','Apex_logo.png'), width=900)
-time.sleep(5)
-st.markdown("""
-    <h2 style= 'text-align: center'>
-        Welcome to Apex college of ICT</h2>
-""",
-unsafe_allow_html=True)
 
+username = ''
+password = ''
 
 # Define a function to switch pages
 def switch_page(page_name):
@@ -28,6 +23,7 @@ if "current_page" not in st.session_state:
 # --------- LOGIN -------
 if st.session_state["current_page"] == "Login":
     st.title("Login")
+    global username
     username = st.text_input('Username', placeholder='Enter your name')
     passcode = st.text_input('Password', type='password', max_chars=6)
     status = st.selectbox('Status', ['Student', 'Admin'])
@@ -93,6 +89,6 @@ elif st.session_state["current_page"] == "sign up":
         switch_page("Login")
 
 elif st.session_state["current_page"] == "student":
-    Student(username)
+    Student('John')
 else:
     st.session_state.current_page = 'Login'
