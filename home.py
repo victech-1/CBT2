@@ -90,4 +90,5 @@ else:
     st.session_state.current_page = 'Login'
 
 if username:
-    st.session_state['name'] = username
+    if 'name' not in st.session_state:
+        st.session_state['name'] = username
