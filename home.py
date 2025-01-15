@@ -2,10 +2,8 @@ import streamlit as st
 import time
 import os
 import re
-from pages.admin import Admin
-from pages.student import Student
 
-
+st.set_page_config(initial_sidebar_state='collapsed')
 username = ''
 password = ''
 
@@ -17,16 +15,14 @@ def switch_page(page_name):
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "Login"
 
-# Page rendering logic
-
-
-# --------- LOGIN -------
-if st.session_state["current_page"] == "Login":
+def login_page():
     st.title("Login")
     global username
     username = st.text_input('Username', placeholder='Enter your name')
     passcode = st.text_input('Password', type='password', max_chars=6)
+    status_options = ['Student','Admin']
     status = st.selectbox('Status', ['Student', 'Admin'])
+    # status = st.radio('Status', ['Admin', 'Student']) 
     cond = (username or passcode != '')
     login = st.button('Login')
     if login and not cond:
@@ -34,24 +30,18 @@ if st.session_state["current_page"] == "Login":
 
     if login and status == 'Student' and cond:
         st.success('Login successful')
-        st.session_state['current_page'] = 'student'
-        Student(username)
+        st.switch_page('pages/student.py')
     elif login and status == 'Admin' and cond:
         st.success('Login successful')
-        st.session_state['current_page'] = 'admin'
-        Admin()
-
-        
-
+        st.switch_page('pages/admin.py')
 
     st.divider()
     st.caption('Are you new User?')
     if st.button("Sign Up instead" ):
         switch_page("sign up")
-        
-
-
-elif st.session_state["current_page"] == "sign up":
+    return username
+    
+def signup():
     st.title("Sign Up")
     name = st.text_input('Name', placeholder='Enter your name')
     email = st.text_input('Email', placeholder='Enter your email address')
@@ -88,7 +78,16 @@ elif st.session_state["current_page"] == "sign up":
     if st.button("Login"):
         switch_page("Login")
 
-elif st.session_state["current_page"] == "student":
-    Student('John')
+
+# Page rendering logic
+if st.session_state["current_page"] == "Login":
+    login_page()    
+
+elif st.session_state["current_page"] == "sign up":
+    signup()
+
 else:
     st.session_state.current_page = 'Login'
+
+if username:
+    st.session_state['name'] = username

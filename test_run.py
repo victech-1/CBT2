@@ -1,177 +1,118 @@
-import streamlit as st
-import time
-import os
-import re
-from pages.admin import Admin
-from pages.student import Student
+# import streamlit as st
 
-# class User:
-#     def __init__(self):
-#         self.name = ''
-#         self.password = ''
-#         self.status = ''
-#         self.page = ''
-#         st.image(os.path.join(os.getcwd(), 'images','Apex_logo.png'), width=500)
-#         # time.sleep(5)
-#         st.markdown("""
-#             <h2 style= 'text-align: center'>
-#                 Welcome to Apex college of ICT</h2>
-#         """,
-#         unsafe_allow_html=True)
-#         self.get_page()
+# # Define quiz questions and answers
+# questions = [
+#     {
+#         "question": "What is the capital of France?",
+#         "options": ["Paris", "London", "Berlin", "Madrid"],
+#         "answer": "Paris",
+#     },
+#     {
+#         "question": "Which programming language is known as the language of the web?",
+#         "options": ["Python", "C++", "JavaScript", "Java"],
+#         "answer": "JavaScript",
+#     },
+#     {
+#         "question": "What is the largest planet in our Solar System?",
+#         "options": ["Earth", "Jupiter", "Saturn", "Mars"],
+#         "answer": "Jupiter",
+#     },
+#     {
+#         "question": "Who wrote 'To Kill a Mockingbird'?",
+#         "options": ["Harper Lee", "Mark Twain", "Ernest Hemingway", "F. Scott Fitzgerald"],
+#         "answer": "Harper Lee",
+#     },
+# ]
 
-#     def get_page(self):
-#         if 'page' not in st.session_state:
-#             st.session_state['page'] = 'Login'
-#         if st.session_state['page'] == 'Login':
-#             self.login_page()
-#         elif st.session_state['page'] == 'Signup':
-#             self.signup_page()
+# # Initialize session state for score and question index
+# if "score" not in st.session_state:
+#     st.session_state.score = 0
+# if "question_index" not in st.session_state:
+#     st.session_state.question_index = 0
+
+# # Display the current question
+# if st.session_state.question_index < len(questions):
+#     question = questions[st.session_state.question_index]
+#     st.header(f"Question {st.session_state.question_index + 1}")
+#     st.write(question["question"])
+
+#     # Display options as radio buttons
+#     selected_option = st.radio("Select an answer:", question["options"])
+
+#     # Submit button
+#     if st.button("Submit"):
+#         if selected_option == question["answer"]:
+#             st.session_state.score += 1
+#             st.success("Correct!")
 #         else:
-#             if self.status == 'Student':
-#                 Student(self.name)
-#             elif self.status == 'Admin':
-#                 Admin(self.name)
+#             st.error(f"Wrong! The correct answer was: {question['answer']}")
 
-#     def switch_page(self, page_name):
-#         st.session_state['page'] = page_name
-#         self.get_page()
-    
-    
-#     def login_page(self):
-#         st.title('Login')
-#         self.name = st.text_input('Username')
-#         self.password = st.text_input('Password', type='password', max_chars=6)
-#         self.status = st.selectbox('Status', ['Student', 'Admin'])
-#         login = st.button('Login')
-#         cond = (self.name or self.password != '')
-#         if login and not cond:
-#             st.error('Invalid login credentials\n Please make sure all details are filled')
+#         st.session_state.question_index += 1
+#         st.experimental_update_query_params()
+#         st.experimental_set_query_params()
 
-#         if login and self.status == 'Student' and cond:
-#             st.success('Login successful')
-#             Student(self.name)
-#         elif login and self.status == 'Admin' and cond:
-#             st.success('Login successful')
-#             Admin()
+# else:
+#     # Display final score
+#     st.header("Quiz Completed!")
+#     st.write(f"Your final score is {st.session_state.score}/{len(questions)}")
 
-#         st.divider()
-#         st.caption('Are you new User?')
-#         if st.button("Sign Up instead" ):
-#             self.page = 'Signup'
-#             st.session_state['page'] = self.page
-#             self.switch_page('Signup')
+#     # Restart button
+#     if st.button("Restart Quiz"):
+#         st.session_state.score = 0
+#         st.session_state.question_index = 0
+#         st.experimental_update_query_params()
+#         st.experimental_set_query_params()
+import streamlit as st
 
-#     def signup_page(self):
-#         st.title('Sign Up')
-#         self.name = st.text_input('Name', placeholder='Enter your name')
-#         self.email = st.text_input('Email', placeholder='Enter your email address')
-#         if self.email:
-#             gmail = re.search('@gmail.com$', self.email)
-#             if gmail:
-#                 pass
-#             else:
-#                 st.error('Email must be a valid Gmail address')
-#         self.password = st.text_input('Password', placeholder='Maximum of six characters', type='password', max_chars=6)
-#         re_password = st.text_input('Confirm Password', placeholder='Maximum of six characters', type='password', max_chars=6)
-#         if self.password != re_password:
-#             st.error('Passwords do not match')
-#         self.status = st.selectbox('Status', ['Student', 'Admin'])
-#         self.status = st.selectbox('Status', ['Student', 'Admin'])
-#         signup = st.button('Sign Up')
-#         cond = (self.name or self.email or self.password != '')
+# Nested dictionary of questions and answers
+questions_data = {
+    1: {"question": "What is 2 + 2?", "options": ["2", "3", "4", "5"], "answer": "4"},
+    2: {"question": "What is the capital of France?", "options": ["Berlin", "Madrid", "Paris", "Rome"], "answer": "Paris"},
+    3: {"question": "Which planet is known as the Red Planet?", "options": ["Earth", "Mars", "Jupiter", "Saturn"], "answer": "Mars"}
+}
 
-#         if signup and not cond:
-#             st.error('All fields are required')
-# User()
+# Retrieve query parameters
+query_params = st.experimental_get_query_params()
+current_question = int(query_params.get("question", [1])[0])  # Default to question 1
 
+# Initialize session state for tracking answers
+if "answers" not in st.session_state:
+    st.session_state.answers = {}
 
-username = ''
-password = ''
-st.set_page_config(initial_sidebar_state='collapsed')
+# Get current question data
+question_data = questions_data.get(current_question, None)
 
-# Define a function to switch pages
-def switch_page(page_name):
-    st.session_state["current_page"] = page_name
+if question_data:
+    # Display the question
+    st.write(f"Question {current_question}: {question_data['question']}")
 
-# Initialize session state for page navigation
-if "current_page" not in st.session_state:
-    st.session_state["current_page"] = "Login"
+    # Display options
+    selected_answer = st.radio(
+        "Select your answer:",
+        options=question_data["options"],
+        key=f"question_{current_question}"
+    )
 
-def login_page():
-    st.title("Login")
-    global username
-    username = st.text_input('Username', placeholder='Enter your name')
-    passcode = st.text_input('Password', type='password', max_chars=6)
-    status = st.selectbox('Status', ['Student', 'Admin'])
-    cond = (username or passcode != '')
-    login = st.button('Login')
-    if login and not cond:
-        st.error('Invalid login credentials\n Please make sure all details are filled')
+    # Save the selected answer
+    if selected_answer:
+        st.session_state.answers[current_question] = selected_answer
 
-    if login and status == 'Student' and cond:
-        st.success('Login successful')
-        st.switch_page('pages/student.py')
-    elif login and status == 'Admin' and cond:
-        st.success('Login successful')
-        st.session_state['current_page'] = 'admin'
-        Admin()
-
-        
-
-
-    st.divider()
-    st.caption('Are you new User?')
-    if st.button("Sign Up instead" ):
-        switch_page("sign up")
-    
-def signup():
-    st.title("Sign Up")
-    name = st.text_input('Name', placeholder='Enter your name')
-    email = st.text_input('Email', placeholder='Enter your email address')
-    if email:
-        gmail = re.search('@gmail.com$', email)
-        if gmail:
-            pass
+    # Navigation buttons
+    col1, col2 = st.columns(2)
+    if col1.button("Previous") and current_question > 1:
+        st.experimental_set_query_params(question=current_question - 1)
+    if col2.button("Next"):
+        if current_question < len(questions_data):
+            st.experimental_set_query_params(question=current_question + 1)
         else:
-            st.error('Email must be a valid Gmail address')
-    password = st.text_input('Password', placeholder='Maximum of six characters', type='password', max_chars=6)
-    re_password = st.text_input('Confirm Password', placeholder='Maximum of six characters', type='password', max_chars=6)
-    if password != re_password:
-        st.error('Passwords do not match')
-    status= st.selectbox('Status', ['Student', 'Admin'])
-    cond = (name or email or password or re_password != '')
-    signup = st.button('Sign Up')
+            st.write("You've completed all the questions!")
 
-    if signup and  not cond:
-        st.error('All fields are required')
-    if signup and cond and status == 'Student':
-        st.success('Account created successfully')
-        st.write('Login to start test')
-        st.session_state['current_page'] = 'Login'
+    # Show answers so far
+    st.write("Your answers so far:", st.session_state.answers)
 
-    elif signup and cond and status == 'Admin':
-        st.success('Account created successfully')
-        st.write('Login to start test')
-        st.session_state['current_page'] = 'Login'
-
-        
-    
-    st.divider()
-    st.caption('Already have an account?')
-    if st.button("Login"):
-        switch_page("Login")
-
-
-# Page rendering logic
-# --------- LOGIN -------
-if st.session_state["current_page"] == "Login":
-    login_page()    
-
-elif st.session_state["current_page"] == "sign up":
-    signup()
-
-elif st.session_state["current_page"] == "student":
-    Student('John')
+    # Check if the selected answer is correct
+    if selected_answer:
+        is_correct = selected_answer == question_data["answer"]
+        st.write("Correct!" if is_correct else "Incorrect.")
 else:
-    st.session_state.current_page = 'Login'
+    st.write("No question found!")
