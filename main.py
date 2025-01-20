@@ -1,15 +1,18 @@
 import streamlit as st
+
 home = st.Page(
-    page = 'pages/student.py,'
-    title = 'student', 
-    default = 'True'
+    page = 'pages/home.py',
+    title = 'Quiz app', 
+    default = 'True',
+    icon= '🧠'
 )
 
 admin = st.Page(
     page = 'pages/admin.py',
-    title = 'admin', 
-    default = 'False'
+    title = 'Admin', 
 )
 
-
-student = st.page_link('pages/student.html')
+student = st.Page(
+    page= 'pages/student.py',
+    title= 'Student '
+)

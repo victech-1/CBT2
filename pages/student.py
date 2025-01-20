@@ -1,222 +1,156 @@
-import time
-
-
-# class Student():
-#     def __init__(self, student_name):
-#         self.name = student_name
-#         st.write('This is the student page')
-#         self.welcome_message()
-
-#     def welcome_message(self):
-#         # time.sleep(5)
-#         st.write(f'Welcome {self.name} 🙂')
-#         self.quiz()
-
-#     def quiz(self):
-
-#         # Define quiz questions and answers
-#         questions = [
-#             {
-#                 "question": "What is the capital of France?",
-#                 "options": ["Paris", "London", "Berlin", "Madrid"],
-#                 "answer": "Paris",
-#             },
-#             {
-#                 "question": "Which programming language is known as the language of the web?",
-#                 "options": ["Python", "C++", "JavaScript", "Java"],
-#                 "answer": "JavaScript",
-#             },
-#             {
-#                 "question": "What is the largest planet in our Solar System?",
-#                 "options": ["Earth", "Jupiter", "Saturn", "Mars"],
-#                 "answer": "Jupiter",
-#             },
-#             {
-#                 "question": "Who wrote 'To Kill a Mockingbird'?",
-#                 "options": ["Harper Lee", "Mark Twain", "Ernest Hemingway", "F. Scott Fitzgerald"],
-#                 "answer": "Harper Lee",
-#             },
-#         ]
-#         # Initialize session state for score and question index
-#         if "score" not in st.session_state:
-#             st.session_state.score = 0
-#         if "question_index" not in st.session_state:
-#             st.session_state['question_index'] = 0
-#         if "button_disabled" not in st.session_state:
-#             st.session_state.button_disabled = False
-#         if 'prev_question' not in st.session_state:
-#             st.session_state.prev_question = False
-#         if 'current_question' not in st.session_state:
-#             st.session_state.current_question = questions[st.session_state['question_index']]
-        
-#         if st.session_state['question_index'] == 0:
-#             st.session_state.prev_question = True
-
-#         def get_question():
-#             question_no = st.session_state['question_index'] + 1
-#             question = questions[st.session_state['question_index']]['question']
-#             options = questions[st.session_state['question_index']]['options']
-#             answer = questions[st.session_state['question_index']]['answer']
-#             def display_question(question_no, question, options):
-#                 st.subheader(f'{question_no}. {question}')
-#                 selected_option = st.radio("Select an answer:", options)
-
-#                 col1, col2 = st.columns(2)
-#                 def nxt_btn():
-#                     # update cache  
-#                     st.session_state['question_index'] += 1
-#                     st.session_state.button_disabled = False
-#                     st.session_state.prev_question = False
-#                     st.experimental_set_query_params()
-#                     get_question()
-#                 def prev_btn():
-#                     st.session_state.question_index -= 1
-#                     st.session_state.button_disabled = False
-#                     st.experimental_set_query_params()
-#                     get_question()
-
-#                 with col1:
-#                     prev = st.button('Previous', on_click=prev_btn, disabled= st.session_state.prev_question)
-#                 with col2:
-#                     next = st.button('Next', on_click=nxt_btn)
-#             display_question(question_no, question, options)
-#         get_question()
-
-
-# Student('User')
-            
-        
-            
-
-
-            
-
-            # # Display final score
-            # st.header("Quiz Completed!")
-            # st.write(f"Your final score is {st.session_state.score}/{len(questions)}")
-
-            # # Restart button
-            # if st.button("Restart Quiz"):
-            #     st.session_state.score = 0
-            #     st.session_state.question_index = 0
-            #     st.experimental_update_query_params()
-            #     st.experimental_set_query_params()
-        
-
-
-            # if col1.button('Previous') and st.session_state.question_index > 1:
-            #     st.query_params(question = st.session_state['question_index'] - 1)
-            # if col2.button('Next') :
-            #     st.query_params(question = st.session_state['question_index'] + 1)
-
-
 import streamlit as st
+import pandas as pd
+import numpy as np
+import mysql.connector
+from datetime import date
 
-class Student():
+class Student:
     def __init__(self, student_name):
         st.title('STUDENT PAGE')
-        if 'name' in st.session_state:
-            self.name = st.session_state['name']
-        else:
-            self.name = student_name
+
+        # Initialize session state variables
+        if 'current_page' not in st.session_state:
+            st.session_state.current_page = 'quiz'
+        if 'name' not in st.session_state:
+            st.session_state.name = student_name
+        if 'score' not in st.session_state:
+            st.session_state.score = 0
+        if 'question_index' not in st.session_state:
+            st.session_state.question_index = 0
+        if 'prev_question' not in st.session_state:
+            st.session_state.prev_question = True
+        
+        
+        self.db = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='',
+            database='CBTapp'
+        )
+
+        # quiz types
+        scursor = self.db.cursor()
+        squery = "SELECT quiz_type FROM questions"
+        scursor.execute(squery)
+        quiz_types = [row[0] for row in scursor.fetchall()]
+        quizzes = list(set(quiz_types))
+        self.quiz_type = np.random.choice(quizzes)
+        scursor.close()
+
+        # fetch questions based on quiz type
+        cursor = self.db.cursor()
+        self.quiz_type = str(self.quiz_type)  
+        query = f"""
+                SELECT 
+                    question, 
+                    option1, 
+                    option2, 
+                    option3, 
+                    option4, 
+                    answer 
+                FROM questions
+                WHERE quiz_type = %s ;
+                """
+        
+        cursor.execute(query, (self.quiz_type,))
+        rows = cursor.fetchall()
+        data = [
+            {
+                "question": row[0],
+                "options": [row[1], row[2], row[3], row[4]],
+                "answer": row[5]
+            }
+            for row in rows
+        ]
+
+        if 'question_data' not in st.session_state:
+            st.session_state.question_data = data
+
+    
+            
+        if 'user_answers' not in st.session_state:
+            st.session_state.user_answers = [None] * len(st.session_state.question_data)
+
         self.start()
 
     def start(self):
-        
-        # start quiz
-    
-        if "current_page" not in st.session_state:
-            st.session_state["current_page"] = "quiz"
-        else:
-            st.session_state.current_page = 'quiz'
-
         if st.session_state.current_page == 'quiz':
             self.quiz()
         elif st.session_state.current_page == 'results':
             self.result()
 
     def switch_page(self, page_name):
-        st.session_state["current_page"] = page_name
-        self.start()
+        st.session_state.current_page = page_name
 
     def quiz(self):
+        questions = st.session_state.question_data
+        question_index = st.session_state.question_index
+        current_question = questions[question_index]
 
-        # Define quiz questions and answers
-        questions = [
-            {
-                "question": "What is the capital of France?",
-                "options": ["Paris", "London", "Berlin", "Madrid"],
-                "answer": "Paris",
-            },
-            {
-                "question": "Which programming language is known as the language of the web?",
-                "options": ["Python", "C++", "JavaScript", "Java"],
-                "answer": "JavaScript",
-            },
-            {
-                "question": "What is the largest planet in our Solar System?",
-                "options": ["Earth", "Jupiter", "Saturn", "Mars"],
-                "answer": "Jupiter",
-            },
-            {
-                "question": "Who wrote 'To Kill a Mockingbird'?",
-                "options": ["Harper Lee", "Mark Twain", "Ernest Hemingway", "F. Scott Fitzgerald"],
-                "answer": "Harper Lee",
-            },
-        ]
+        st.subheader(f'{question_index + 1}. {current_question["question"]}')
+        selected_option = st.radio(
+            "Select an answer:",
+            current_question["options"],
+            index=current_question["options"].index(st.session_state.user_answers[question_index])
+            if st.session_state.user_answers[question_index] is not None
+            else 0,
+            key=f'question_{question_index}',
+        )
 
-        # Initialize session state for score and question index
-        if "score" not in st.session_state:
-            st.session_state.score = 0
-        if "question_index" not in st.session_state:
-            st.session_state.question_index = 0
-        if "button_disabled" not in st.session_state:
-            st.session_state.button_disabled = False
-        if "prev_question" not in st.session_state:
-            st.session_state.prev_question = True
-
-        def get_question():
-            question_no = st.session_state['question_index'] + 1
-            question = questions[st.session_state['question_index']]['question']
-            options = questions[st.session_state['question_index']]['options']
-            answer = questions[st.session_state['question_index']]['answer']
-            st.subheader(f'{question_no}. {question}')
-            selected_option = st.radio("Select an answer:", options, key=f'question_{st.session_state.question_index}')
-            is_correct = (selected_option == answer)
-            if is_correct:
+        def update_answer():
+            # Update score based on the answer change
+            if st.session_state.user_answers[question_index] == current_question["answer"]:
+                st.session_state.score -= 1
+            if selected_option == current_question["answer"]:
                 st.session_state.score += 1
-            col1, col2 = st.columns(2)
+            st.session_state.user_answers[question_index] = selected_option
 
-            def nxt_btn():
-                if st.session_state['question_index'] < len(questions) - 1:
-                    st.session_state['question_index'] += 1
-                    st.session_state.prev_question = False
+        def next_question():
+            update_answer()
+            st.session_state.question_index += 1
 
-            def prev_btn():
-                if st.session_state['question_index'] > 0:
-                    st.session_state['question_index'] -= 1
-                    st.session_state.score -= 1
-                    st.session_state.prev_question = st.session_state['question_index'] == 0
+        def previous_question():
+            st.session_state.question_index -= 1
 
-            with col1:
-                st.button('Previous', on_click=prev_btn, disabled=st.session_state.prev_question)
-            with col2:
-                st.button('Next', on_click=nxt_btn, disabled=st.session_state['question_index'] == len(questions) - 1)
-            if question_no +1 > len(questions):
-                self.submit_btn()
-        get_question()
+        col1, col2 = st.columns(2)
+        with col1:
+            st.button("Previous", on_click=previous_question, disabled=question_index == 0)
+        with col2:
+            st.button("Next", on_click=next_question, disabled=question_index == len(questions) - 1)
 
-    def submit_btn(self):
-        time.sleep(5)
-        st.divider()
-        st.header("Quiz Completed!")
-        submit = st.button('Submit', on_click=self.switch_page('results'))
-        
+        if question_index == len(questions) - 1:
+            if st.button("Submit"):
+                update_answer()
+                self.switch_page('results')
+
     def result(self):
         st.header('Student Result')
-        st.subheader(f'Name: {self.name}')
-        st.subheader(f'Score: {st.session_state.score}')
-            
+        st.subheader(f'Name: {st.session_state.name}')
+        st.subheader(f'Score: {st.session_state.score} / {len(st.session_state.question_data)}')
+
+        st.markdown('<br>', unsafe_allow_html=True)
+        data = pd.DataFrame(st.session_state.question_data, index=np.arange(1, len(st.session_state.question_data) + 1))
+        data['Your Answer'] = st.session_state.user_answers
+        df = data.drop(columns='options')
+        st.table(df)
+        
+        # update Database
+        today = date.today()
+        formatted_date = today.strftime("%d-%m-%Y")
+        query = """
+                INSERT INTO students (name, score, quiz_type, date)
+                VALUES (%s, %s, %s, %s)
+                """
+        values = (st.session_state.name, st.session_state.score, self.quiz_type, formatted_date)
+        cursor = self.db.cursor()
+        cursor.execute(query, values)
+        self.db.commit()
+
+        if st.button('Home'):
+            st.session_state.clear()
+            st.session_state.current_page = 'Login'
+            st.switch_page('home.py')
 
 
+# Run the app
 Student('User')

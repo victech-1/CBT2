@@ -1,118 +1,154 @@
 # import streamlit as st
+# import streamlit.components.v1 as components
 
-# # Define quiz questions and answers
-# questions = [
-#     {
-#         "question": "What is the capital of France?",
-#         "options": ["Paris", "London", "Berlin", "Madrid"],
-#         "answer": "Paris",
-#     },
-#     {
-#         "question": "Which programming language is known as the language of the web?",
-#         "options": ["Python", "C++", "JavaScript", "Java"],
-#         "answer": "JavaScript",
-#     },
-#     {
-#         "question": "What is the largest planet in our Solar System?",
-#         "options": ["Earth", "Jupiter", "Saturn", "Mars"],
-#         "answer": "Jupiter",
-#     },
-#     {
-#         "question": "Who wrote 'To Kill a Mockingbird'?",
-#         "options": ["Harper Lee", "Mark Twain", "Ernest Hemingway", "F. Scott Fitzgerald"],
-#         "answer": "Harper Lee",
-#     },
-# ]
 
-# # Initialize session state for score and question index
-# if "score" not in st.session_state:
-#     st.session_state.score = 0
-# if "question_index" not in st.session_state:
-#     st.session_state.question_index = 0
 
-# # Display the current question
-# if st.session_state.question_index < len(questions):
-#     question = questions[st.session_state.question_index]
-#     st.header(f"Question {st.session_state.question_index + 1}")
-#     st.write(question["question"])
+# # Use HTML to create a div and center it with CSS
+# html_code = """
+# <div style="display: flex; justify-content: center; align-items: center;">
+#     <div style="width: 200px; height: 100px; background-color: lightblue; text-align: center;">
+#         This div is centered in Streamlit.
+#     </div>
+# </div>
+# """
 
-#     # Display options as radio buttons
-#     selected_option = st.radio("Select an answer:", question["options"])
+# # Display the HTML using st.markdown
+# st.markdown(html_code, unsafe_allow_html=True)
 
-#     # Submit button
-#     if st.button("Submit"):
-#         if selected_option == question["answer"]:
-#             st.session_state.score += 1
-#             st.success("Correct!")
-#         else:
-#             st.error(f"Wrong! The correct answer was: {question['answer']}")
 
-#         st.session_state.question_index += 1
-#         st.experimental_update_query_params()
-#         st.experimental_set_query_params()
+# # HTML and CSS for interactive landing page
+# html_code = """
+# <!DOCTYPE html>
+# <html lang="en">
+# <head>
+#     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#     <style>
+#         body {
+#             font-family: Arial, sans-serif;
+#             background: linear-gradient(to bottom right, #4facfe, #00f2fe);
+#             color: white;
+#             margin: 0;
+#             padding: 0;
+#         }
+#         .container {
+#             text-align: center;
+#             padding: 50px 20px;
+#         }
+#         h1 {
+#             font-size: 3rem;
+#             margin-bottom: 10px;
+#             text-shadow: 2px 2px #00264d;
+#         }
+#         p {
+#             font-size: 1.2rem;
+#             margin: 20px 0;
+#         }
+#         .buttons {
+#             margin-top: 30px;
+#         }
+#         .button {
+#             display: inline-block;
+#             padding: 15px 30px;
+#             margin: 10px;
+#             font-size: 1.2rem;
+#             font-weight: bold;
+#             color: white;
+#             background-color: #0066cc;
+#             border: none;
+#             border-radius: 25px;
+#             text-decoration: none;
+#             cursor: pointer;
+#             transition: transform 0.2s, background-color 0.3s;
+#         }
+#         .button:hover {
+#             background-color: #004d99;
+#             transform: scale(1.05);
+#         }
+#         .button:active {
+#             transform: scale(1);
+#         }
+#         .image-container {
+#             margin: 30px auto;
+#             max-width: 300px;
+#         }
+#         .image-container img {
+#             width: 100%;
+#             border-radius: 20px;
+#             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+#         }
+#     </style>
+# </head>
+# <body>
+#     <div class="container">
+#         <h1>Welcome to the Ultimate Quiz Challenge! 🧠</h1>
+#         <p>Put your knowledge to the test with fun and engaging quizzes.</p>
+#         <div class="image-container">
+#             <img src="https://via.placeholder.com/300x200.png?text=Quiz+Image" alt="Quiz Image">
+#         </div>
+#         <div class="buttons">
+#             <a class="button" href="#" onclick="sendMessage('start_quiz')">Start Quiz</a>
+#             <a class="button" href="#" onclick="sendMessage('leaderboard')">Leaderboard</a>
+#         </div>
+#     </div>
+#     <script>
+#         function sendMessage(message) {
+#             const streamlitEvent = new CustomEvent("sendMessage", {detail: {message}});
+#             document.dispatchEvent(streamlitEvent);
+#         }
+#     </script>
+# </body>
+# </html>
+# """
 
-# else:
-#     # Display final score
-#     st.header("Quiz Completed!")
-#     st.write(f"Your final score is {st.session_state.score}/{len(questions)}")
+# # Embedding the HTML in Streamlit
+# components.html(html_code, height=600, scrolling=False)
 
-#     # Restart button
-#     if st.button("Restart Quiz"):
-#         st.session_state.score = 0
-#         st.session_state.question_index = 0
-#         st.experimental_update_query_params()
-#         st.experimental_set_query_params()
+# # Handling actions from the buttons
+# if "current_page" not in st.session_state:
+#     st.session_state["current_page"] = "landing"
+
+# def navigate_to(page):
+#     st.session_state["current_page"] = page
+
+# # Listen for messages from HTML
+# # st.session_state["current_page"] = st.experimental_get_query_params().get("page", ["landing"])[0]
+# st.query_params.update({'page': 'landing'})
+# val = st.query_params.keys()
+# st.query_params.get('current_page')
+# st.write(val)
+
+
+# if st.session_state["current_page"] == "start_quiz":
+#     st.write("Starting the quiz...")
+# elif st.session_state["current_page"] == "leaderboard":
+#     st.write("Navigating to the leaderboard...")
 import streamlit as st
 
-# Nested dictionary of questions and answers
-questions_data = {
-    1: {"question": "What is 2 + 2?", "options": ["2", "3", "4", "5"], "answer": "4"},
-    2: {"question": "What is the capital of France?", "options": ["Berlin", "Madrid", "Paris", "Rome"], "answer": "Paris"},
-    3: {"question": "Which planet is known as the Red Planet?", "options": ["Earth", "Mars", "Jupiter", "Saturn"], "answer": "Mars"}
-}
+# Center the buttons with a container and columns
+st.markdown(
+    """
+    <style>
+    .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-# Retrieve query parameters
-query_params = st.experimental_get_query_params()
-current_question = int(query_params.get("question", [1])[0])  # Default to question 1
-
-# Initialize session state for tracking answers
-if "answers" not in st.session_state:
-    st.session_state.answers = {}
-
-# Get current question data
-question_data = questions_data.get(current_question, None)
-
-if question_data:
-    # Display the question
-    st.write(f"Question {current_question}: {question_data['question']}")
-
-    # Display options
-    selected_answer = st.radio(
-        "Select your answer:",
-        options=question_data["options"],
-        key=f"question_{current_question}"
-    )
-
-    # Save the selected answer
-    if selected_answer:
-        st.session_state.answers[current_question] = selected_answer
-
-    # Navigation buttons
+# Container for centering the buttons
+with st.container():
+    st.markdown('<div class="center-container">', unsafe_allow_html=True)
     col1, col2 = st.columns(2)
-    if col1.button("Previous") and current_question > 1:
-        st.experimental_set_query_params(question=current_question - 1)
-    if col2.button("Next"):
-        if current_question < len(questions_data):
-            st.experimental_set_query_params(question=current_question + 1)
-        else:
-            st.write("You've completed all the questions!")
 
-    # Show answers so far
-    st.write("Your answers so far:", st.session_state.answers)
+    with col1:
+        if st.button("Button 1"):
+            st.write("Button 1 clicked!")
 
-    # Check if the selected answer is correct
-    if selected_answer:
-        is_correct = selected_answer == question_data["answer"]
-        st.write("Correct!" if is_correct else "Incorrect.")
-else:
-    st.write("No question found!")
+    with col2:
+        if st.button("Button 2"):
+            st.write("Button 2 clicked!")
+    st.markdown('</div>', unsafe_allow_html=True)
