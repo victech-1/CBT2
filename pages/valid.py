@@ -50,8 +50,9 @@ def login_page():
 
     st.divider()
     st.caption('Are you new User?')
-    if st.button("Sign Up instead" ):
-        switch_page("sign up")
+    # if st.button("Sign Up instead" ):
+    #     switch_page("sign up")
+    st.button('Sign up instead', on_click=switch_page, args=('sign up',))
     return username, passcode
     
 def signup():
@@ -91,8 +92,9 @@ def signup():
     
     st.divider()
     st.caption('Already have an account?')
-    if st.button("Login"):
-        switch_page("Login")
+    # if st.button("Login"):
+    #     switch_page("Login")
+    st.button('Sign in', on_click=switch_page, args=('Login',))
 
 
 # Page rendering logic
