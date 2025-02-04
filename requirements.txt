@@ -2,6 +2,3 @@ streamlit
 pandas
 numpy
 mysql.connector
-re
-os
-time
