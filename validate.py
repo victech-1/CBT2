@@ -4,10 +4,11 @@ import mysql.connector
 class Validate:
     def __init__(self, role, username, password, status, email=None):
         self.db = mysql.connector.connect(
-            host='localhost',
+            host='127.0.0.1',
             user='root',
             password='',
             database='CBTapp'
+            port=3306
 
         )
         self.cursor = self.db.cursor()
