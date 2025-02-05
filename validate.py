@@ -4,7 +4,7 @@ import mysql.connector
 class Validate:
     def __init__(self, role, username, password, status, email=None):
         self.db = mysql.connector.connect(
-            host='127.0.0.1',
+            host='localhost',
             user='root',
             password='',
             database='CBTapp',
